@@ -8,6 +8,8 @@ on:
       - ".python-version"
       - "pyproject.toml"
       - "uv.lock"
+      - "main.py"
+      - ".github/workflows/build.yml"
     tags:
       - "v*.*.*"
   workflow_dispatch:
