@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Built plugin packages
+plugin.video.cricfy.zip
+plugin.video.cricfy-*.zip

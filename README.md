@@ -9,9 +9,62 @@ Cricfy Plugin for Kodi is an unofficial Kodi add-on that lets you stream Cricfy 
 - Browse and play Cricfy streams from within Kodi
 - Aggregates multiple providers through Cricfy for higher availability
 
+## Building the Plugin
+
+### Automated Build (GitHub Actions)
+
+The plugin is automatically built and packaged when code is pushed to the repository or when a new version tag is created. The GitHub Actions workflow (`.github/workflows/build.yml`) handles:
+
+1. **Build Job**: Runs `main.py` to populate configuration files, then creates an artifact with the plugin directory
+2. **Release Job** (on version tags): Creates a ZIP file and publishes it as a GitHub Release
+3. **Pre-release Job** (on regular commits): Creates a ZIP file and publishes it as a pre-release
+
+The workflow produces `plugin.video.cricfy-{version}.zip` files ready for installation in Kodi.
+
+### Manual Build (Local)
+
+To build the plugin locally and create a ZIP file:
+
+1. **Prerequisites**: Python 3.12 or higher
+
+2. **Run the build script**:
+   ```bash
+   python build.py
+   ```
+
+   This creates `plugin.video.cricfy.zip` in the current directory.
+
+3. **Optional: Specify output directory**:
+   ```bash
+   python build.py -o dist
+   ```
+
+   This creates the ZIP file in the `dist/` directory.
+
+4. **View all options**:
+   ```bash
+   python build.py --help
+   ```
+
+### How the Packaging Works
+
+The `build.py` script:
+- Locates the `plugin.video.cricfy` directory
+- Creates a ZIP archive containing all files from the plugin directory
+- Maintains the directory structure required by Kodi (plugin files must be inside a `plugin.video.cricfy/` folder within the ZIP)
+- Outputs a `plugin.video.cricfy.zip` file ready for installation in Kodi
+
+The resulting ZIP file contains:
+- `addon.xml` - Plugin metadata and dependencies
+- `main.py` - Main plugin entry point
+- `service.py` - Background service
+- `icon.png` - Plugin icon
+- `lib/` - Python modules and libraries
+- `resources/` - Configuration and resource files
+
 ## Installation
 
-1. Download the latest plugin ZIP file from [Releases](https://github.com/itsyourap/cricfy-kodi-plugin/releases) to a location accessible from the device where Kodi is installed. If you received this plugin as a ZIP package, use that file.
+1. Download the latest plugin ZIP file from [Releases](https://github.com/itsyourap/cricfy-kodi-plugin/releases) to a location accessible from the device where Kodi is installed. Alternatively, build the plugin manually using the instructions above.
 2. Open Kodi.
 3. (Optional) Enable installation from unknown sources if required:
     - Go to Settings -> System -> Add-ons and enable "Unknown sources".
