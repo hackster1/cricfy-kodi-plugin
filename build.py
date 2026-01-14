@@ -62,16 +62,15 @@ def build_plugin(output_dir: Optional[Path] = None, plugin_name: str = "plugin.v
                     arcname = file_path.relative_to(current_dir)
                     zipf.write(file_path, arcname)
                     print(f"  Adding: {arcname}")
-        
-        print(f"\n✓ Successfully created: {zip_path}")
-        print(f"  Size: {zip_path.stat().st_size / 1024:.2f} KB")
-        return zip_path
-        
     except Exception as e:
         # Clean up partial ZIP file if creation failed
         if zip_path.exists():
             zip_path.unlink()
         raise IOError(f"Failed to create ZIP file: {e}") from e
+    
+    print(f"\n✓ Successfully created: {zip_path}")
+    print(f"  Size: {zip_path.stat().st_size / 1024:.2f} KB")
+    return zip_path
 
 
 def main():
