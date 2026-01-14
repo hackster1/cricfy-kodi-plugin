@@ -10,10 +10,11 @@ import argparse
 import shutil
 import sys
 from pathlib import Path
+from typing import Optional
 from zipfile import ZIP_DEFLATED, ZipFile
 
 
-def build_plugin(output_dir: Path = None, plugin_name: str = "plugin.video.cricfy") -> Path:
+def build_plugin(output_dir: Optional[Path] = None, plugin_name: str = "plugin.video.cricfy") -> Path:
     """
     Package the Kodi plugin directory into a ZIP file.
     
@@ -26,7 +27,8 @@ def build_plugin(output_dir: Path = None, plugin_name: str = "plugin.video.cricf
     
     Raises:
         FileNotFoundError: If the plugin directory doesn't exist.
-        Exception: If packaging fails.
+        ValueError: If the plugin path exists but is not a directory.
+        IOError: If packaging fails.
     """
     current_dir = Path(__file__).resolve().parent
     plugin_dir = current_dir / plugin_name
@@ -36,7 +38,7 @@ def build_plugin(output_dir: Path = None, plugin_name: str = "plugin.video.cricf
         raise FileNotFoundError(f"Plugin directory not found: {plugin_dir}")
     
     if not plugin_dir.is_dir():
-        raise FileNotFoundError(f"Path exists but is not a directory: {plugin_dir}")
+        raise ValueError(f"Path exists but is not a directory: {plugin_dir}")
     
     # Set output directory
     if output_dir is None:
@@ -70,7 +72,7 @@ def build_plugin(output_dir: Path = None, plugin_name: str = "plugin.video.cricf
         # Clean up partial ZIP file if creation failed
         if zip_path.exists():
             zip_path.unlink()
-        raise Exception(f"Failed to create ZIP file: {e}")
+        raise IOError(f"Failed to create ZIP file: {e}") from e
 
 
 def main():
