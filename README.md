@@ -46,6 +46,8 @@ To build the plugin locally and create a ZIP file:
    python build.py --help
    ```
 
+**Note**: The `build.py` script packages the plugin directory as-is. For a fully functional plugin, you may need to run `main.py` first to populate configuration files from environment variables (this is done automatically in the GitHub Actions workflow). The packaged plugin will work without this step, but may require configuration at runtime.
+
 ### How the Packaging Works
 
 The `build.py` script:
