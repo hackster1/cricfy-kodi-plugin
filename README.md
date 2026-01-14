@@ -25,7 +25,7 @@ The workflow produces `plugin.video.cricfy-{version}.zip` files ready for instal
 
 To build the plugin locally and create a ZIP file:
 
-1. **Prerequisites**: Python 3.12 or higher
+1. **Prerequisites**: Python 3.12
 
 2. **Run the build script**:
    ```bash
