@@ -13,13 +13,26 @@ Cricfy Plugin for Kodi is an unofficial Kodi add-on that lets you stream Cricfy 
 
 ### Automated Build (GitHub Actions)
 
-The plugin is automatically built and packaged when code is pushed to the repository or when a new version tag is created. The GitHub Actions workflow (`.github/workflows/build.yml`) handles:
+The plugin is automatically built, packaged, and released when code is pushed to the main branch. There are two workflows:
 
+#### Automatic Release Workflow (`.github/workflows/release.yml`)
+
+When changes are pushed to the main branch:
+1. **Version Check**: Reads the version from `addon.xml` and checks if a release with that version already exists
+2. **Build & Release**: If the version is new, automatically:
+   - Runs `main.py` to populate configuration files
+   - Creates `plugin.video.cricfy.zip` using `build.py`
+   - Creates a GitHub Release with the version tag (e.g., `v1.2.0`)
+   - Uploads the ZIP file to the release
+
+To create a new release, simply update the version in `plugin.video.cricfy/addon.xml` and push to main.
+
+#### Build Workflow (`.github/workflows/build.yml`)
+
+Additional workflow that runs on pushes to main or when version tags are manually created:
 1. **Build Job**: Runs `main.py` to populate configuration files, then creates an artifact with the plugin directory
 2. **Release Job** (on version tags): Creates a ZIP file and publishes it as a GitHub Release
 3. **Pre-release Job** (on regular commits): Creates a ZIP file and publishes it as a pre-release
-
-The workflow produces `plugin.video.cricfy-{version}.zip` files ready for installation in Kodi.
 
 ### Manual Build (Local)
 
