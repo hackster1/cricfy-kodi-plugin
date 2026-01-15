@@ -30,14 +30,14 @@ jobs:
       - name: Get version from addon.xml
         id: get_version
         run: |
-          VERSION=$(awk -F'"' '/^  version=/ {print $2}' plugin.video.cricfy/addon.xml)
+          VERSION=$(awk -F'"' '/<addon/,/provider-name/ {if (/version=/) {print $2; exit}}' plugin.video.cricfy/addon.xml)
           echo "version=v${VERSION}" >> $GITHUB_OUTPUT
           echo "Version found: v${VERSION}"
 
       - name: Check if tag exists
         id: check_tag
         run: |
-          VERSION=$(awk -F'"' '/^  version=/ {print $2}' plugin.video.cricfy/addon.xml)
+          VERSION=$(awk -F'"' '/<addon/,/provider-name/ {if (/version=/) {print $2; exit}}' plugin.video.cricfy/addon.xml)
           if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "Tag already exists"
@@ -75,7 +75,7 @@ jobs:
 
       - name: Create plugin ZIP
         run: |
-          python build.py -o dist
+          uv run python build.py -o dist
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
