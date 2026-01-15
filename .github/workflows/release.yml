@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_version.outputs.version }}
+      version_number: ${{ steps.get_version.outputs.version_number }}
       tag_exists: ${{ steps.check_tag.outputs.exists }}
     steps:
       - name: Checkout repository
@@ -32,13 +33,13 @@ jobs:
         run: |
           VERSION=$(awk -F'"' '/<addon/,/provider-name/ {if (/version=/) {print $2; exit}}' plugin.video.cricfy/addon.xml)
           echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_number=${VERSION}" >> $GITHUB_OUTPUT
           echo "Version found: v${VERSION}"
 
       - name: Check if tag exists
         id: check_tag
         run: |
-          VERSION=$(awk -F'"' '/<addon/,/provider-name/ {if (/version=/) {print $2; exit}}' plugin.video.cricfy/addon.xml)
-          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+          if git rev-parse "${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "Tag already exists"
           else
