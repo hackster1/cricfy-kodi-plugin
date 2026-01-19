@@ -1,0 +1,90 @@
+name: Automatic Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "plugin.video.cricfy/**"
+      - ".python-version"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "main.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      version_number: ${{ steps.get_version.outputs.version_number }}
+      tag_exists: ${{ steps.check_tag.outputs.exists }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get version from addon.xml
+        id: get_version
+        run: |
+          VERSION=$(awk -F'"' '/<addon/,/provider-name/ {if (/version=/) {print $2; exit}}' plugin.video.cricfy/addon.xml)
+          echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_number=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version found: v${VERSION}"
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag does not exist"
+          fi
+
+  build-and-release:
+    needs: check-version
+    if: needs.check-version.outputs.tag_exists == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install the project
+        run: uv sync --locked --all-extras
+
+      - name: Run main.py
+        env:
+          CRICFY_SECRET: ${{ secrets.CRICFY_SECRET }}
+          CRICFY_FIREBASE_API_KEY: ${{ secrets.CRICFY_FIREBASE_API_KEY }}
+          CRICFY_FIREBASE_APP_ID: ${{ secrets.CRICFY_FIREBASE_APP_ID }}
+          CRICFY_PACKAGE_NAME: ${{ secrets.CRICFY_PACKAGE_NAME }}
+        run: uv run main.py
+
+      - name: Create plugin ZIP
+        run: |
+          uv run python build.py -o dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.check-version.outputs.version }}
+          name: Release ${{ needs.check-version.outputs.version }}
+          files: dist/plugin.video.cricfy.zip
+          make_latest: true
+          prerelease: false
+          draft: false
+          generate_release_notes: true

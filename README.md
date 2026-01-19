@@ -9,9 +9,77 @@ Cricfy Plugin for Kodi is an unofficial Kodi add-on that lets you stream Cricfy 
 - Browse and play Cricfy streams from within Kodi
 - Aggregates multiple providers through Cricfy for higher availability
 
+## Building the Plugin
+
+### Automated Build (GitHub Actions)
+
+The plugin is automatically built, packaged, and released when code is pushed to the main branch. There are two workflows:
+
+#### Automatic Release Workflow (`.github/workflows/release.yml`)
+
+When changes are pushed to the main branch:
+1. **Version Check**: Reads the version from `addon.xml` and checks if a release with that version already exists
+2. **Build & Release**: If the version is new, automatically:
+   - Runs `main.py` to populate configuration files
+   - Creates `plugin.video.cricfy.zip` using `build.py`
+   - Creates a GitHub Release with the version tag (e.g., `v1.2.0`)
+   - Uploads the ZIP file to the release
+
+To create a new release, simply update the version in `plugin.video.cricfy/addon.xml` and push to main.
+
+#### Build Workflow (`.github/workflows/build.yml`)
+
+Additional workflow that runs on pushes to main or when version tags are manually created:
+1. **Build Job**: Runs `main.py` to populate configuration files, then creates an artifact with the plugin directory
+2. **Release Job** (on version tags): Creates a ZIP file and publishes it as a GitHub Release
+3. **Pre-release Job** (on regular commits): Creates a ZIP file and publishes it as a pre-release
+
+### Manual Build (Local)
+
+To build the plugin locally and create a ZIP file:
+
+1. **Prerequisites**: Python 3.12
+
+2. **Run the build script**:
+   ```bash
+   python build.py
+   ```
+
+   This creates `plugin.video.cricfy.zip` in the current directory.
+
+3. **Optional: Specify output directory**:
+   ```bash
+   python build.py -o dist
+   ```
+
+   This creates the ZIP file in the `dist/` directory.
+
+4. **View all options**:
+   ```bash
+   python build.py --help
+   ```
+
+**Note**: The `build.py` script packages the plugin directory as-is. For a fully functional plugin, you may need to run `main.py` first to populate configuration files from environment variables (this is done automatically in the GitHub Actions workflow). The packaged plugin will work without this step, but may require configuration at runtime.
+
+### How the Packaging Works
+
+The `build.py` script:
+- Locates the `plugin.video.cricfy` directory
+- Creates a ZIP archive containing all files from the plugin directory
+- Maintains the directory structure required by Kodi (plugin files must be inside a `plugin.video.cricfy/` folder within the ZIP)
+- Outputs a `plugin.video.cricfy.zip` file ready for installation in Kodi
+
+The resulting ZIP file contains:
+- `addon.xml` - Plugin metadata and dependencies
+- `main.py` - Main plugin entry point
+- `service.py` - Background service
+- `icon.png` - Plugin icon
+- `lib/` - Python modules and libraries
+- `resources/` - Configuration and resource files
+
 ## Installation
 
-1. Download the latest plugin ZIP file from [Releases](https://github.com/itsyourap/cricfy-kodi-plugin/releases) to a location accessible from the device where Kodi is installed. If you received this plugin as a ZIP package, use that file.
+1. Download the latest plugin ZIP file from [Releases](https://github.com/itsyourap/cricfy-kodi-plugin/releases) to a location accessible from the device where Kodi is installed. Alternatively, build the plugin manually using the instructions above.
 2. Open Kodi.
 3. (Optional) Enable installation from unknown sources if required:
     - Go to Settings -> System -> Add-ons and enable "Unknown sources".
